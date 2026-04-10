@@ -1,5 +1,10 @@
 
 export enum Role {
     ADMIN = "ADMIN",
-    USER= "USER"
+    USER= "USER",
+    GCAMMEMBER= "GCAMMEMBER"
+}
+
+export interface IUser {
+    name: string
 }
