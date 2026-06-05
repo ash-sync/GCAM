@@ -1,39 +1,36 @@
-import {Server} from "http"
+import { Server } from "http";
 import mongoose = require("mongoose");
 import app from "./app";
+import { envVars } from "./app/config/env";
 
-let server : Server;
+let server: Server;
 
 const startServer = async () => {
-    try {
-        await mongoose.connect(
-            "mongodb+srv://mongodb:<db_password>@cluster0.y5njkct.mongodb.net/?appName=Cluster0"
-        );
-        console.log("Connected to DB")
+  try {
+    await mongoose.connect(envVars.DB_URL);
+    console.log("Connected to DB");
 
-        server = app.listen(5000, () => {
-            console.log("Server is listening to the port 5000")
-        });
-
-    } catch (error) {
-        console.log(error)
-    }
-
-}
+    server = app.listen(5000, () => {
+      console.log("Server is listening to the port 5000");
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 startServer();
 
 //unhandled rejection error
 
 process.on("unhandledRejection", (err) => {
-    console.log("Unhandled Rejection detected...Server shutting down... ", err)
-    if(server) {
-        server.close(() => {
-            process.exit(1)
-        })
-    }
-    process.exit(1)
-})
+  console.log("Unhandled Rejection detected...Server shutting down... ", err);
+  if (server) {
+    server.close(() => {
+      process.exit(1);
+    });
+  }
+  process.exit(1);
+});
 
 // uncaught exception
 process.on("uncaughtException", (err) => {
