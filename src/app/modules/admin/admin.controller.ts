@@ -5,16 +5,7 @@ import { sendResponse } from "../../utils/sendResponse";
 import { IAdmin } from "./admin.interface";
 import { JwtPayload } from "jsonwebtoken";
 
-const loginAdmin = catchAsync(async (req: Request, res: Response) => {
-  const result = await AdminService.loginAdmin(req.body);
 
-  sendResponse(res, {
-    success: true,
-    statusCode: StatusCodes.OK,
-    message: "Logged in Successfully",
-    data: result,
-  });
-});
 
 const createInvite = catchAsync(async (req: Request, res: Response) => {
   const createdBy = req.user.id;
