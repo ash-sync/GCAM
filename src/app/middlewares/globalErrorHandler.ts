@@ -1,5 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { envVars } from "../config/env";
+import { TErrorSources } from "../interfaces/error.type";
+import AppError from "../errorHelpers/AppError";
+import { handleCastError } from "../helpers/handleCastError";
+import { handleDuplicateError } from "../helpers/handleDuplicateError";
 
 export const globalErrorHandler = async (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -12,7 +16,7 @@ export const globalErrorHandler = async (
   let statusCode = 500;
   let message = `Something Went wrong!! ${err.message}`;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let errorSources: any = [];
+  let errorSources: TErrorSources[] = [];
 
   //cloudinary file
   //   if (req.file) {
@@ -28,19 +32,19 @@ export const globalErrorHandler = async (
   //   }
 
   // mongoose duplicate error handling
-  //   if (err.code === 11000) {
-  //     const simplifiedError = handleDuplicateError(err);
-  //     statusCode = simplifiedError.statusCode;
-  //     message = simplifiedError.message;
-  //   }
+  if (err.code === 11000) {
+    const simplifiedError = handleDuplicateError(err);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+  }
   //   // mongoose cast error handling
-  //   else if (err.name === "CastError") {
-  //     const simplifiedError = handleCastError(err);
-  //     message = simplifiedError.message;
-  //   } else if (err instanceof AppError) {
-  //     statusCode = err.statusCode;
-  //     message = err.message;
-  //   }
+  else if (err.name === "CastError") {
+    const simplifiedError = handleCastError(err);
+    message = simplifiedError.message;
+  } else if (err instanceof AppError) {
+    statusCode = err.statusCode;
+    message = err.message;
+  }
   //   // ZOD ERROR
   //   else if (err.name === "ZodError") {
   //     const simplifiedError = handleZodError(err);
