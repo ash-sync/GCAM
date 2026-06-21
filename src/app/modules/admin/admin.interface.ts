@@ -9,6 +9,4 @@ export interface IAdmin {
   email: string;
   password: string;
   role: Role;
-  isActive: boolean;
-  createdAt: Date;
 }
