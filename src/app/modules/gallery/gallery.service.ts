@@ -20,7 +20,9 @@ const uploadImages = async (payload: IImage) => {
     );
   }
 
-  return await Gallery.create(payload);
+  const gallery = await Gallery.create(payload);
+
+  return gallery;
 };
 
 const getAllImages = async (query: any) => {

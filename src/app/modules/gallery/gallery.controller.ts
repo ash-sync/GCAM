@@ -26,7 +26,6 @@ const getAllCategories = catchAsync(async (req: Request, res: Response) => {
 
 const uploadImages = catchAsync(async (req: Request, res: Response) => {
   const files = req.files as Express.Multer.File[];
-  const body = { ...req.body };
 
   if (!files || files.length === 0) {
     return sendResponse(res, {
@@ -37,8 +36,12 @@ const uploadImages = catchAsync(async (req: Request, res: Response) => {
     });
   }
 
-  const imageUrls = files.map((file) => file.path);
-  const payload = { ...body, imageUrls };
+  const paths = files.map((file) => file.path);
+
+  const payload = {
+    ...req.body,
+    imageUrls: paths,
+  };
 
   const result = await GalleryService.uploadImages(payload);
 
