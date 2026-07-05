@@ -2,6 +2,7 @@ import { Server } from "http";
 import mongoose = require("mongoose");
 import app from "./app";
 import { envVars } from "./app/config/env";
+import { seedAdmin } from "./app/utils/seedAdmin";
 
 let server: Server;
 
@@ -10,15 +11,18 @@ const startServer = async () => {
     await mongoose.connect(envVars.DB_URL);
     console.log("Connected to DB");
 
-    server = app.listen(5000, () => {
-      console.log("Server is listening to the port 5000");
+    server = app.listen(5001, "0.0.0.0", () => {
+      console.log("Server is listening to the port 5001");
     });
   } catch (error) {
     console.log(error);
   }
 };
 
-startServer();
+(async () => {
+  await startServer();
+  await seedAdmin();
+})();
 
 //unhandled rejection error
 

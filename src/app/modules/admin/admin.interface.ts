@@ -5,8 +5,9 @@ export enum Role {
 
 export interface IAdmin {
   _id?: string;
-  name: string;
+  name?: string;
   email: string;
   password: string;
   role: Role;
+  isActive?: boolean;
 }

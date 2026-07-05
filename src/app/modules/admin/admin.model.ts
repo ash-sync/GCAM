@@ -28,7 +28,6 @@ const adminSchema = new Schema<IAdmin>(
       enum: Object.values(Role),
       default: Role.USER,
     },
-
     isActive: {
       type: Boolean,
       default: true,

@@ -8,7 +8,7 @@ import jwt from "jsonwebtoken";
 const loginAdmin = async (payload: Partial<IAdmin>) => {
   const { email, password } = payload;
 
-  const isAdminExist = await Admin.findOne({ email });
+  const isAdminExist = await Admin.findOne({ email }).select("+password");
 
   if (!isAdminExist) {
     throw new AppError(StatusCodes.BAD_REQUEST, "Admin does not exist");
