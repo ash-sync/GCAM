@@ -3,7 +3,8 @@ import AppError from "../../errorHelpers/AppError";
 import { IAdmin } from "../admin/admin.interface";
 import { Admin } from "../admin/admin.model";
 import bcryptjs from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { envVars } from "../../config/env";
+import { generateToken } from "../../utils/jwt";
 
 const loginAdmin = async (payload: Partial<IAdmin>) => {
   const { email, password } = payload;
@@ -29,9 +30,7 @@ const loginAdmin = async (payload: Partial<IAdmin>) => {
     role: isAdminExist.role,
   };
 
-  const accessToken = jwt.sign(JwtPayload, "secret", {
-    expiresIn: "3d",
-  });
+  const accessToken = generateToken(JwtPayload, envVars.JWT_SECRET, "3d");
 
   return {
     accessToken,

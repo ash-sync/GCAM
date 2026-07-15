@@ -10,7 +10,10 @@ export const checkAuth =
   (...authRoles: string[]) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const accessToken = req.headers.authorization || req.cookies.accessToken;
+      const rawToken = req.headers.authorization || req.cookies.accessToken;
+      const accessToken = typeof rawToken === "string" && rawToken.startsWith("Bearer ")
+        ? rawToken.slice(7)
+        : rawToken;
 
       if (!accessToken) {
         throw new AppError(StatusCodes.UNAUTHORIZED, "No Token Received");

@@ -4,11 +4,11 @@ import { StatusCodes } from "http-status-codes";
 import { sendResponse } from "../../utils/sendResponse";
 import { IAdmin } from "./admin.interface";
 import { JwtPayload } from "jsonwebtoken";
-
-
+import { AdminService } from "./admin.service";
+import { seedData } from "../../utils/seedData";
 
 const createInvite = catchAsync(async (req: Request, res: Response) => {
-  const createdBy = req.user.id;
+  const createdBy = req.user?.adminId;
 
   const result = await AdminService.createInvite(req.body.email, createdBy);
 
@@ -20,64 +20,75 @@ const createInvite = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const acceptInvite = catchAsync(async(req: Request, res: Response) => {
+const acceptInvite = catchAsync(async (req: Request, res: Response) => {
   const result = await AdminService.acceptInvite(req.body);
-  
-  sendResponse(res{
-    success: true,
-    statusCode: StatusCodes.OK,
-    message: "Invite Accepted",
-    data: result
-  })
-})
 
-const getAllAdmins = catchAsync(async(req: Request, res: Response) => {
-  const query = req.query;
-  const result = await AdminService.getAllAdmins(query as Record<string,string>)
-  sendResponse(res{
+  sendResponse(res, {
     success: true,
     statusCode: StatusCodes.OK,
     message: "Invite Accepted",
-    data: result
-  })
-})
+    data: result,
+  });
+});
+
+const getAllAdmins = catchAsync(async (req: Request, res: Response) => {
+  const query = req.query;
+  const result = await AdminService.getAllAdmins(query as Record<string, string>);
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Admins fetched successfully",
+    data: result,
+  });
+});
 
 const getMe = catchAsync(async (req: Request, res: Response) => {
-  const decodedToken = req.user as JwtPayload
+  const decodedToken = req.user as JwtPayload;
 
   const result = await AdminService.getMe(decodedToken.adminId);
 
   sendResponse(res, {
     success: true,
-    statusCode: StatusCodes.CREATED,
+    statusCode: StatusCodes.OK,
     message: "Your profile Retrieved Successfully",
-    data: result.data,
+    data: result,
   });
+});
 
-})
-
-
-const updateAdmin = catchAsync(async(req: Request, res: Response) => {
-  const adminId =req.params.id;
+const updateAdmin = catchAsync(async (req: Request, res: Response) => {
+  const adminId = req.params.id as string;
   const verifiedToken = req.user;
   const payload: IAdmin = {
     ...req.body,
-  }
-  const admin = await AdminService.updateAdmin(adminId,payload, verifiedToken as JwtPayload)
-    sendResponse(res, {
-      success: true,
-      statusCode: StatusCodes.CREATED,
-      message: "User updated Successfully",
-      data: admin,
-    });
-})
+  };
+  const admin = await AdminService.updateAdmin(
+    adminId,
+    payload,
+    verifiedToken as JwtPayload
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "User updated Successfully",
+    data: admin,
+  });
+});
 
+const seedDemoData = catchAsync(async (req: Request, res: Response) => {
+  await seedData();
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Demo data seeded successfully",
+    data: null,
+  });
+});
 
 export const AdminControllers = {
-  loginAdmin,
   createInvite,
   acceptInvite,
   getMe,
   getAllAdmins,
   updateAdmin,
-}
+  seedDemoData,
+};

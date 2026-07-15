@@ -1,8 +1,27 @@
 import { Request, Response } from "express";
+import { Readable } from "stream";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { GalleryService } from "./gallery.service";
-import type { Multer } from "multer";
+import { cloudinaryUpload } from "../../config/cloudinary.config";
+
+// Helper to upload a buffer to Cloudinary using Node.js built-in Readable
+const uploadBufferToCloudinary = (
+  buffer: Buffer,
+  publicId: string,
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinaryUpload.uploader.upload_stream(
+      { public_id: publicId, folder: "gcam-gallery" },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result!.secure_url);
+      },
+    );
+    const readable = Readable.from(buffer);
+    readable.pipe(uploadStream);
+  });
+};
 
 const createCategory = catchAsync(async (req: Request, res: Response) => {
   const result = await GalleryService.createCategory(req.body);
@@ -36,11 +55,18 @@ const uploadImages = catchAsync(async (req: Request, res: Response) => {
     });
   }
 
-  const paths = files.map((file) => file.path);
+  // Upload each file buffer to Cloudinary
+  const uploadPromises = files.map((file) => {
+    const uniqueId =
+      Math.random().toString(36).substring(2) + "-" + Date.now();
+    return uploadBufferToCloudinary(file.buffer, uniqueId);
+  });
+
+  const imageUrls = await Promise.all(uploadPromises);
 
   const payload = {
     ...req.body,
-    imageUrls: paths,
+    imageUrls,
   };
 
   const result = await GalleryService.uploadImages(payload);
